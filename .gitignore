@@ -1,0 +1,35 @@
+# --- Virtual Environments ---
+.lol_scanner/
+venv/
+env/
+.env/
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# --- Project Specific Data ---
+services/neural_network/dataset/
+services/neural_network/dataset_chars/
+services/neural_network/processed_data/
+services/neural_network/train_mini/train_data/
+services/neural_network/train_mini/labeled_dataset_auto/
+
+# --- ML Models & Large Binaries ---
+*.h5
+*.pth
+*.pt
+*.pkl
+*.onnx
+*.npy
+*.npz
+
+# --- Logs & OS Files ---
+*.log
+.DS_Store
+Thumbs.db
+
+# --- Environment Secrets ---
+.env
