@@ -17,7 +17,6 @@ services/neural_network/processed_data/
 services/neural_network/train_mini/train_data/
 services/neural_network/train_mini/labeled_dataset_auto/
 shots/
-dist/
 build/
 
 # --- ML Models & Large Binaries ---
