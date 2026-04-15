@@ -3,7 +3,7 @@
 
 a = Analysis(
     ['client\\main_client.py'],
-    pathex=[],
+    pathex=['.'],
     binaries=[],
     datas=[],
     hiddenimports=[],
