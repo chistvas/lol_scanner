@@ -6,6 +6,7 @@ from datetime import datetime
 from PyQt6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, 
                              QPushButton, QLabel, QTextEdit)
 from PyQt6.QtCore import QThread, pyqtSignal
+import pygetwindow as gw
 
 # Класс для работы в фоновом режиме
 class ScreenshotThread(QThread):
@@ -17,29 +18,42 @@ class ScreenshotThread(QThread):
 
     def run(self):
         self.running = True
-        if not os.path.exists("shots"):
-            os.makedirs("shots")
+        target_title = "League of Legends (TM) Client" # Точное название окна игры
+        
+        if not os.path.exists("lol_screenshots"):
+            os.makedirs("lol_screenshots")
 
         while self.running:
-            # Делаем скриншот
-            timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-            filename = f"shots/screen_{timestamp}.png"
+            # Ищем окно игры
+            windows = gw.getWindowsWithTitle(target_title)
             
-            try:
-                import pyautogui
-                pyautogui.screenshot(filename)
-                self.log_signal.emit(f"✅ Сохранено: {filename}")
-            except Exception as e:
-                self.log_signal.emit(f"❌ Ошибка: {e}")
+            # Проверяем, что окно существует и оно сейчас активно (на переднем плане)
+            # Если нужно снимать даже когда игра свернута, уберите .isActive
+            active_window = next((w for w in windows if target_title in w.title), None)
 
-            # Вычисляем интервал: 60 сек +- 15 сек (от 45 до 75)
+            if active_window:
+                timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+                filename = f"lol_screenshots/screen_{timestamp}.png"
+                
+                try:
+                    # Делаем скриншот только области окна игры
+                    screenshot = pyautogui.screenshot(region=(
+                        active_window.left, 
+                        active_window.top, 
+                        active_window.width, 
+                        active_window.height
+                    ))
+                    screenshot.save(filename)
+                    self.log_signal.emit(f"📸 Снято: {timestamp}")
+                except Exception as e:
+                    self.log_signal.emit(f"❌ Ошибка захвата: {e}")
+            else:
+                self.log_signal.emit("💤 Игра не запущена. Жду...")
+
+            # Рандомный интервал 60 +/- 15 сек
             wait_time = random.randint(45, 75)
-            self.log_signal.emit(f"⏳ Следующий через {wait_time} сек...")
-            
-            # Спим короткими интервалами, чтобы можно было быстро остановить поток
             for _ in range(wait_time):
-                if not self.running:
-                    break
+                if not self.running: break
                 time.sleep(1)
 
     def stop(self):
